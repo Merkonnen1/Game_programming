@@ -13,7 +13,6 @@ class Spritesheet:
         self.current_col = 0
         self.time = time
         self.image_width = self.image.get_width()
-        print(self.image_width)
         self.image_height = self.image.get_height()
         self.frame_width = self.image_width // self.cols
         self.frame_height = self.image_height // self.rows
@@ -134,15 +133,24 @@ class Interaction:
     def update(self):
         for player_name, player in self.players.items():
             controls = self.keyboard.players[player_name]
-            if controls["right"]:
-                player.vel.add(Vector(1, 0))
-            if controls["left"]:
-                player.vel.subtract(Vector(1, 0))
-            if controls["up"]:
-                player.vel.subtract(Vector(0, 1))
-            if controls["down"]:
-                player.vel.add(Vector(0, 1))
-
+            if player_name=='player_1':
+                if controls["right"] and player.pos.get_p()[0]<350:
+                    player.vel.add(Vector(1, 0))
+                if controls["left"] and player.pos.get_p()[0]>100:
+                    player.vel.subtract(Vector(1, 0))
+                if controls["up"] and player.pos.get_p()[1]>70:
+                    player.vel.subtract(Vector(0, 1))
+                if controls["down"] and player.pos.get_p()[1]<290:
+                    player.vel.add(Vector(0, 1))
+            else:
+                if controls["right"] and player.pos.get_p()[0]<800:
+                    player.vel.add(Vector(1, 0))
+                if controls["left"] and player.pos.get_p()[0]>550:
+                    player.vel.subtract(Vector(1, 0))
+                if controls["up"] and player.pos.get_p()[1]>70:
+                    player.vel.subtract(Vector(0, 1))
+                if controls["down"] and player.pos.get_p()[1]<290:
+                    player.vel.add(Vector(0, 1))
 Character_2 = Character(False)
 Character = Character(True)
 keyboard = Keyboard(Character,Character_2)
