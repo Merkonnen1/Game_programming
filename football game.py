@@ -1,8 +1,4 @@
-try:
-    import simplegui
-except ImportError:
-    import SimpleGUICS2Pygame.simpleguics2pygame as simplegui
-
+import simplegui
 import math 
 
 CANVAS_WIDTH = 600
@@ -51,14 +47,23 @@ class Spritesheet:
         self.current_row = 0
         self.current_col = 0
         self.time = time
+
         self.image_width = self.image.get_width()
         self.image_height = self.image.get_height()
+        if self.image_width <= 0 or self.image_height <= 0:
+            print(f"Warning: Failed to load image from URL: {url}. Using fallback dimensions.")
+            self.image_width = 1
+            self.image_height = 1  
+
         self.frame_width = self.image_width // self.cols
         self.frame_height = self.image_height // self.rows
         self.centres = [[(col * self.frame_width + self.frame_width // 2,
                           row * self.frame_height + self.frame_height // 2)
                          for col in range(self.cols)]
                         for row in range(self.rows)]
+
+
+
 
     def next_frame(self):
         self.current_col += 1
@@ -83,54 +88,52 @@ class Clock:
 
 class Player:
     def __init__(self, position, radius, speed, key_map, sprite_urls):
-        self.position = position
-        self.radius = radius
-        self.speed = speed
-        self.velocity = Vector(0, 0)
-        self.key_map = key_map
-        self.current_state = "Idle"
+        self.position = position 
+        self.radius = radius      
+        self.speed = speed        
+        self.velocity = Vector(0, 0) 
+        self.key_map = key_map   
         self.sprites = {
             "Idle": Spritesheet(sprite_urls["Idle"], 1, 6, 2),
-            "Run": Spritesheet(sprite_urls["Run"], 1, 8, 2)
+            "Run": Spritesheet(sprite_urls["Run"], 1, 8, 2),
+            "Attack": Spritesheet(sprite_urls["Idle"], 1, 6, 2)  
         }
-        self.current_sprite = self.sprites[self.current_state]
-        self.clock = Clock()
+        self.current = "Idle"  
+        self.current_animation = self.sprites[self.current]
+        self.clock_obj = Clock()
+        self.frame_count = 0
 
     def update(self):
-        move_direction = Vector(0, 0)
-
-        if keys[self.key_map["up"]]:
-            move_direction.y -= 1
-        if keys[self.key_map["down"]]:
-            move_direction.y += 1
-        if keys[self.key_map["left"]]:
-            move_direction.x -= 1
-        if keys[self.key_map["right"]]:
-            move_direction.x += 1
-
-        if move_direction.x != 0 or move_direction.y != 0:
-            self.current_state = "Run"
-        else:
-            self.current_state = "Idle"
-
-        move_direction = move_direction.normalize()
-        self.velocity = move_direction.multiply(self.speed)
         self.position.add(self.velocity)
+        self.velocity = self.velocity.multiply(0.85)  # Friction factor
+        if self.current == "Attack":
+            self.frame_count += 1
 
     def draw(self, canvas):
-        self.current_sprite = self.sprites[self.current_state]
-        self.clock.tick()
+        if self.current == 'Attack' and self.frame_count >= 6:
+            self.current = 'Idle'
+            self.frame_count = 0
+        self.current_animation = self.sprites[self.current]
+        self.clock_obj.tick()
 
-        if self.clock.transition(self.current_sprite.time):
-            self.current_sprite.next_frame()
-
-        centre_x, centre_y = self.current_sprite.centres[self.current_sprite.current_row][
-            self.current_sprite.current_col]
-        canvas.draw_image(self.current_sprite.image,
+        centre_x, centre_y = self.current_animation.centres[self.current_animation.current_row][
+            self.current_animation.current_col]
+        canvas.draw_image(self.current_animation.image,
                           (centre_x, centre_y),
-                          (self.current_sprite.frame_width, self.current_sprite.frame_height),
+                          (self.current_animation.frame_width, self.current_animation.frame_height),
                           self.position.get_p(),
-                          (self.current_sprite.frame_width, self.current_sprite.frame_height))
+                          (self.current_animation.frame_width, self.current_animation.frame_height))
+
+        if self.clock_obj.transition(self.current_animation.time):
+            self.next_frame()
+
+    def next_frame(self):
+        self.current_animation.current_col += 1
+        if self.current_animation.current_col == self.current_animation.cols:
+            self.current_animation.current_col = 0
+            self.current_animation.current_row += 1
+            if self.current_animation.current_row == self.current_animation.rows:
+                self.current_animation.current_row = 0
 
 class Ball:
     def __init__(self, radius):
@@ -240,21 +243,32 @@ def key_up(key):
 game = Game()
 ball = Ball(BALL_RADIUS)
 
-player1_sprites = {
-    "Idle": "https://via.placeholder.com/150",
-    "Run": "https://via.placeholder.com/150"
-}
-player2_sprites = {
-    "Idle": "https://via.placeholder.com/150",
-    "Run": "https://via.placeholder.com/150"
-}
+player1 = Player(
+    position=Vector(50, CANVAS_HEIGHT / 2), 
+    radius=15, 
+    speed=5, 
+    key_map={"up": simplegui.KEY_MAP["w"], "down": simplegui.KEY_MAP["s"],
+             "left": simplegui.KEY_MAP["a"], "right": simplegui.KEY_MAP["d"]},
+    sprite_urls={
+        "Idle": "https://i.imgur.com/QEGGeXY.png", 
+        "Run": "https://i.imgur.com/DSTxdb0.png", 
+        "Attack": "https://i.imgur.com/ND8Mi41.png"  
+    }
+)
 
-player1 = Player(Vector(50, CANVAS_HEIGHT / 2), 15, 5,
-                 {"up": simplegui.KEY_MAP["w"], "down": simplegui.KEY_MAP["s"],
-                  "left": simplegui.KEY_MAP["a"], "right": simplegui.KEY_MAP["d"]}, player1_sprites)
-player2 = Player(Vector(CANVAS_WIDTH - 50, CANVAS_HEIGHT / 2), 15, 5,
-                 {"up": simplegui.KEY_MAP["up"], "down": simplegui.KEY_MAP["down"],
-                  "left": simplegui.KEY_MAP["left"], "right": simplegui.KEY_MAP["right"]}, player2_sprites)
+player2 = Player(
+    position=Vector(CANVAS_WIDTH - 50, CANVAS_HEIGHT / 2), 
+    radius=15, 
+    speed=5, 
+    key_map={"up": simplegui.KEY_MAP["up"], "down": simplegui.KEY_MAP["down"],
+             "left": simplegui.KEY_MAP["left"], "right": simplegui.KEY_MAP["right"]},
+    sprite_urls={
+        "Idle": "https://i.imgur.com/5F7px4p.png", 
+        "Run": "https://i.imgur.com/xY1P0B0.png",  
+        "Attack": "https://i.imgur.com/5eD8bnj.png"  
+    }
+)
+
 
 frame = simplegui.create_frame("Football Game", CANVAS_WIDTH, CANVAS_HEIGHT)
 frame.set_draw_handler(draw)
