@@ -1,8 +1,8 @@
 import simplegui
 import math 
 
-CANVAS_WIDTH = 600
-CANVAS_HEIGHT = 400
+CANVAS_WIDTH = 1000
+CANVAS_HEIGHT = 450
 BALL_RADIUS = 10
 
 keys = {simplegui.KEY_MAP["w"]: False, simplegui.KEY_MAP["s"]: False,
@@ -62,9 +62,6 @@ class Spritesheet:
                          for col in range(self.cols)]
                         for row in range(self.rows)]
 
-
-
-
     def next_frame(self):
         self.current_col += 1
         if self.current_col == self.cols:
@@ -96,7 +93,7 @@ class Player:
         self.sprites = {
             "Idle": Spritesheet(sprite_urls["Idle"], 1, 6, 2),
             "Run": Spritesheet(sprite_urls["Run"], 1, 8, 2),
-            "Attack": Spritesheet(sprite_urls["Idle"], 1, 6, 2)  
+            "Attack": Spritesheet(sprite_urls["Attack"], 1, 6, 2)  
         }
         self.current = "Idle"  
         self.current_animation = self.sprites[self.current]
@@ -104,6 +101,15 @@ class Player:
         self.frame_count = 0
 
     def update(self):
+        if keys[self.key_map["up"]]:
+            self.velocity.add(Vector(0, -self.speed))
+        if keys[self.key_map["down"]]:
+            self.velocity.add(Vector(0, self.speed))
+        if keys[self.key_map["left"]]:
+            self.velocity.add(Vector(-self.speed, 0))
+        if keys[self.key_map["right"]]:
+            self.velocity.add(Vector(self.speed, 0))
+
         self.position.add(self.velocity)
         self.velocity = self.velocity.multiply(0.85)  # Friction factor
         if self.current == "Attack":
@@ -246,7 +252,7 @@ ball = Ball(BALL_RADIUS)
 player1 = Player(
     position=Vector(50, CANVAS_HEIGHT / 2), 
     radius=15, 
-    speed=5, 
+    speed=1, 
     key_map={"up": simplegui.KEY_MAP["w"], "down": simplegui.KEY_MAP["s"],
              "left": simplegui.KEY_MAP["a"], "right": simplegui.KEY_MAP["d"]},
     sprite_urls={
@@ -259,7 +265,7 @@ player1 = Player(
 player2 = Player(
     position=Vector(CANVAS_WIDTH - 50, CANVAS_HEIGHT / 2), 
     radius=15, 
-    speed=5, 
+    speed=1, 
     key_map={"up": simplegui.KEY_MAP["up"], "down": simplegui.KEY_MAP["down"],
              "left": simplegui.KEY_MAP["left"], "right": simplegui.KEY_MAP["right"]},
     sprite_urls={
@@ -269,9 +275,12 @@ player2 = Player(
     }
 )
 
-
 frame = simplegui.create_frame("Football Game", CANVAS_WIDTH, CANVAS_HEIGHT)
 frame.set_draw_handler(draw)
+frame.set_keydown_handler(key_down)
+frame.set_keyup_handler(key_up)
+
+frame.start()
 frame.set_keydown_handler(key_down)
 frame.set_keyup_handler(key_up)
 
