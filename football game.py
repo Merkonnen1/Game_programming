@@ -191,8 +191,8 @@ class Ball:
 
 class Game:
     def __init__(self):
-        self.player1_lives = 3
-        self.player2_lives = 3
+        self.player1_score = 0
+        self.player2_lives = 0
         self.show_goal_message = False
 
     def score_goal(self, scorer):
@@ -200,11 +200,11 @@ class Game:
         self.show_goal_message = True
 
         if scorer == 1:
-            self.player2_lives -= 1
+            self.player2_lives += 1
         else:
-            self.player1_lives -= 1
+            self.player1_lives += 1
 
-        if self.player1_lives == 0 or self.player2_lives == 0:
+        if self.player1_lives == 3 or self.player2_lives == 3:
             self.end_game()
 
     def reset_positions(self):
@@ -235,8 +235,8 @@ def draw(canvas):
     player1.draw(canvas)
     player2.draw(canvas)
 
-    canvas.draw_text(f"P1 Lives: {game.player1_lives}", (50, 30), 20, "White")
-    canvas.draw_text(f"P2 Lives: {game.player2_lives}", (CANVAS_WIDTH - 150, 30), 20, "White")
+    canvas.draw_text(f"P1 Score: {game.player1_score}", (50, 30), 20, "White")
+    canvas.draw_text(f"P2 Score: {game.player2_score}", (CANVAS_WIDTH - 150, 30), 20, "White")
 
 def key_down(key):
     if key in keys:
