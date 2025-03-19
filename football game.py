@@ -174,7 +174,7 @@ def draw(canvas):
     ball.draw(canvas)
 
 frame = simplegui.create_frame('Game', 900, 400)
-frame.set_canvas_background('dark green')
+frame.set_canvas_background('green')
 frame.set_draw_handler(draw)
 frame.set_keydown_handler(keyboard.keyDown)
 frame.set_keyup_handler(keyboard.keyUp)
