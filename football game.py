@@ -1,42 +1,8 @@
-import simplegui
-import math 
-
-CANVAS_WIDTH = 1000
-CANVAS_HEIGHT = 450
-BALL_RADIUS = 10
-
-keys = {simplegui.KEY_MAP["w"]: False, simplegui.KEY_MAP["s"]: False,
-        simplegui.KEY_MAP["a"]: False, simplegui.KEY_MAP["d"]: False,
-        simplegui.KEY_MAP["up"]: False, simplegui.KEY_MAP["down"]: False,
-        simplegui.KEY_MAP["left"]: False, simplegui.KEY_MAP["right"]: False}
-
-class Vector:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def add(self, other):
-        self.x += other.x
-        self.y += other.y
-
-    def multiply(self, scalar):
-        return Vector(self.x * scalar, self.y * scalar)
-
-    def normalize(self):
-        mag = (self.x ** 2 + self.y ** 2) ** 0.5
-        if mag != 0:
-            return Vector(self.x / mag, self.y / mag)
-        return Vector(0, 0)
-
-    def reflect(self, normal):
-        dot_product = self.x * normal.x + self.y * normal.y
-        return Vector(self.x - 2 * dot_product * normal.x, self.y - 2 * dot_product * normal.y)
-
-    def distance(self, other):
-        return ((self.x - other.x) ** 2 + (self.y - other.y) ** 2) ** 0.5
-
-    def get_p(self):
-        return (self.x, self.y)
+try:
+    import simplegui
+except ImportError:
+    import SimpleGUICS2Pygame.simpleguics2pygame as simplegui
+from user304_rsf8mD0BOQ_1 import Vector
 
 class Spritesheet:
     def __init__(self, url, rows, cols, time):
@@ -47,28 +13,14 @@ class Spritesheet:
         self.current_row = 0
         self.current_col = 0
         self.time = time
-
         self.image_width = self.image.get_width()
         self.image_height = self.image.get_height()
-        if self.image_width <= 0 or self.image_height <= 0:
-            print(f"Warning: Failed to load image from URL: {url}. Using fallback dimensions.")
-            self.image_width = 1
-            self.image_height = 1  
-
         self.frame_width = self.image_width // self.cols
         self.frame_height = self.image_height // self.rows
         self.centres = [[(col * self.frame_width + self.frame_width // 2,
                           row * self.frame_height + self.frame_height // 2)
                          for col in range(self.cols)]
                         for row in range(self.rows)]
-
-    def next_frame(self):
-        self.current_col += 1
-        if self.current_col == self.cols:
-            self.current_col = 0
-            self.current_row += 1
-            if self.current_row == self.rows:
-                self.current_row = 0
 
 class Clock:
     def __init__(self):
@@ -83,35 +35,23 @@ class Clock:
             return True
         return False
 
-class Player:
-    def __init__(self, position, radius, speed, key_map, sprite_urls):
-        self.position = position 
-        self.radius = radius      
-        self.speed = speed        
-        self.velocity = Vector(0, 0) 
-        self.key_map = key_map   
-        self.sprites = {
-            "Idle": Spritesheet(sprite_urls["Idle"], 1, 6, 2),
-            "Run": Spritesheet(sprite_urls["Run"], 1, 8, 2),
-            "Attack": Spritesheet(sprite_urls["Attack"], 1, 6, 2)  
+class Character:
+    def __init__(self, is_player_one):
+        self.pos = Vector(150, 200) if is_player_one else Vector(750, 200)
+        self.player = {
+            "Idle": Spritesheet("https://i.imgur.com/QEGGeXY.png", 1, 6, 2) if is_player_one else Spritesheet("https://i.imgur.com/5F7px4p.png", 1, 6, 2),
+            "Run": Spritesheet("https://i.imgur.com/DSTxdb0.png", 1, 8, 2) if is_player_one else Spritesheet("https://i.imgur.com/xY1P0B0.png", 1, 8, 2),
+            "Attack": Spritesheet("https://i.imgur.com/ND8Mi41.png", 1, 6, 2) if is_player_one else Spritesheet("https://i.imgur.com/5eD8bnj.png", 1, 6, 2)
         }
-        self.current = "Idle"  
-        self.current_animation = self.sprites[self.current]
-        self.clock_obj = Clock()
+        self.current = 'Idle'
+        self.current_animation = self.player[self.current]
+        self.vel = Vector(0, 0)
         self.frame_count = 0
+        self.clock_obj = Clock()
 
     def update(self):
-        if keys[self.key_map["up"]]:
-            self.velocity.add(Vector(0, -self.speed))
-        if keys[self.key_map["down"]]:
-            self.velocity.add(Vector(0, self.speed))
-        if keys[self.key_map["left"]]:
-            self.velocity.add(Vector(-self.speed, 0))
-        if keys[self.key_map["right"]]:
-            self.velocity.add(Vector(self.speed, 0))
-
-        self.position.add(self.velocity)
-        self.velocity = self.velocity.multiply(0.85)  # Friction factor
+        self.pos.add(self.vel)
+        self.vel.multiply(0.85)
         if self.current == "Attack":
             self.frame_count += 1
 
@@ -119,16 +59,14 @@ class Player:
         if self.current == 'Attack' and self.frame_count >= 6:
             self.current = 'Idle'
             self.frame_count = 0
-        self.current_animation = self.sprites[self.current]
+        self.current_animation = self.player[self.current]
         self.clock_obj.tick()
 
-        centre_x, centre_y = self.current_animation.centres[self.current_animation.current_row][
-            self.current_animation.current_col]
+        centre_x, centre_y = self.current_animation.centres[self.current_animation.current_row][self.current_animation.current_col]
         canvas.draw_image(self.current_animation.image,
                           (centre_x, centre_y),
                           (self.current_animation.frame_width, self.current_animation.frame_height),
-                          self.position.get_p(),
-                          (self.current_animation.frame_width, self.current_animation.frame_height))
+                          self.pos.get_p(), (self.current_animation.frame_width, self.current_animation.frame_height))
 
         if self.clock_obj.transition(self.current_animation.time):
             self.next_frame()
@@ -141,147 +79,103 @@ class Player:
             if self.current_animation.current_row == self.current_animation.rows:
                 self.current_animation.current_row = 0
 
+class Keyboard:
+    def __init__(self, player_1, player_2):
+        self.players = {
+            "player_1": {"instance": player_1, "controls": {"right": False, "left": False, "up": False, "down": False}},
+            "player_2": {"instance": player_2, "controls": {"right": False, "left": False, "up": False, "down": False}}
+        }
+        self.key_map = {
+            "player_1": {"right": "d", "left": "a", "up": "w", "down": "s"},
+            "player_2": {"right": "right", "left": "left", "up": "up", "down": "down"}
+        }
+
+    def keyDown(self, key):
+        for player, controls in self.key_map.items():
+            for action, key_name in controls.items():
+                if key == simplegui.KEY_MAP[key_name]:
+                    self.players[player]["controls"][action] = True
+                    self.players[player]["instance"].current = 'Run'
+
+    def keyUp(self, key):
+        for player, controls in self.key_map.items():
+            idle = True
+            for action, key_name in controls.items():
+                if key == simplegui.KEY_MAP[key_name]:
+                    self.players[player]["controls"][action] = False
+                if self.players[player]["controls"][action]:
+                    idle = False
+            if idle:
+                self.players[player]["instance"].current = 'Idle'
+
 class Ball:
-    def __init__(self, radius):
-        self.position = Vector(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2) 
-        self.velocity = Vector(0, 0) 
-        self.radius = radius
-        self.friction = 0.98
-        self.goal_scored = False
-        self.goal_time = 0
-        self.moving = False  
+    def __init__(self):
+        self.pos = Vector(450, 200)
+        self.vel = Vector(0, 0)
+        self.radius = 15
 
     def update(self):
-        if self.moving and not self.goal_scored:
-            self.position.add(self.velocity)
-            self.velocity = self.velocity.multiply(self.friction)
-
-            if self.position.y - self.radius < 0 or self.position.y + self.radius > CANVAS_HEIGHT:
-                self.velocity.y *= -1
-
-            if self.position.x - self.radius < 0:
-                self.goal_scored = True
-                self.goal_time = 180
-                game.score_goal(2)
-            elif self.position.x + self.radius > CANVAS_WIDTH:
-                self.goal_scored = True
-                self.goal_time = 180
-                game.score_goal(1)
+        self.pos.add(self.vel)
+        self.vel.multiply(0.9) 
 
     def draw(self, canvas):
-        canvas.draw_circle(self.position.get_p(), self.radius, 2, "White", "White")
-        for i in range(5):
-            angle = i * 2 * math.pi / 5  
-            black_circle = Vector(self.position.x + self.radius * 0.5 * math.cos(angle),
-                                self.position.y + self.radius * 0.5 * math.sin(angle))
-            canvas.draw_circle(black_circle.get_p(), self.radius * 0.2, 1, "Black", "Black")
+        canvas.draw_circle(self.pos.get_p(), self.radius, 1, "White", "White")
 
-        if self.goal_scored:
-            self.goal_time -= 1
-            if self.goal_time <= 0:
-                self.goal_scored = False
-                game.reset_positions()
+    def kick(self, direction):
+        self.vel.add(direction)
 
-    def check_player_collision(self, player):
-        """Checks if the ball collides with a player and reflects its velocity."""
-        if self.position.distance(player.position) < self.radius + player.radius:
-            normal = Vector(self.position.x - player.position.x, self.position.y - player.position.y).normalize()
-            self.velocity = self.velocity.reflect(normal)
-            self.moving = True 
-
-class Game:
-    def __init__(self):
-        self.player1_score = 0
-        self.player2_lives = 0
-        self.show_goal_message = False
-
-    def score_goal(self, scorer):
-        global ball
-        self.show_goal_message = True
-
-        if scorer == 1:
-            self.player2_lives += 1
-        else:
-            self.player1_lives += 1
-
-        if self.player1_lives == 3 or self.player2_lives == 3:
-            self.end_game()
-
-    def reset_positions(self):
-        global ball, player1, player2
-        ball = Ball(BALL_RADIUS)
-        player1.position = Vector(50, CANVAS_HEIGHT / 2)
-        player2.position = Vector(CANVAS_WIDTH - 50, CANVAS_HEIGHT / 2)
-        self.show_goal_message = False
-
-    def end_game(self):
-        print("Match Ended")
+class Interaction:
+    def __init__(self, player_1, player_2, keyboard, ball):
+        self.players = {
+            "player_1": player_1,
+            "player_2": player_2
+        }
+        self.keyboard = keyboard
+        self.ball = ball
 
     def update(self):
-        
-        ball.update()
-        player1.update()
-        player2.update()
-        ball.check_player_collision(player1)
-        ball.check_player_collision(player2)
+        for player_name, player in self.players.items():
+            controls = self.keyboard.players[player_name]["controls"]
+            self.move_player(player, controls, 70, 820, 70, 300)
+
+            if self.is_player_near_ball(player):
+                kick_direction = Vector(5, 0) if player_name == 'player_1' else Vector(-5, 0)
+                self.ball.kick(kick_direction)
+
+    def move_player(self, player, controls, left_limit, right_limit, up_limit, down_limit):
+        if controls["right"] and player.pos.get_p()[0] < right_limit:
+            player.vel.add(Vector(1, 0))
+        if controls["left"] and player.pos.get_p()[0] > left_limit:
+            player.vel.subtract(Vector(1, 0))
+        if controls["up"] and player.pos.get_p()[1] > up_limit:
+            player.vel.subtract(Vector(0, 1))
+        if controls["down"] and player.pos.get_p()[1] < down_limit:
+            player.vel.add(Vector(0, 1))
+
+    def is_player_near_ball(self, player):
+        return (player.pos.get_p()[0] < self.ball.pos.get_p()[0] + self.ball.radius and
+                player.pos.get_p()[0] + 50 > self.ball.pos.get_p()[0] and
+                player.pos.get_p()[1] < self.ball.pos.get_p()[1] + self.ball.radius and
+                player.pos.get_p()[1] + 50 > self.ball.pos.get_p()[1])
+
+Character_2 = Character(False)
+Character = Character(True)
+ball = Ball()
+keyboard = Keyboard(Character, Character_2)
+inter = Interaction(Character, Character_2, keyboard, ball)
 
 def draw(canvas):
-    game.update()
-    if game.show_goal_message:
-        canvas.draw_text("GOAL!", (CANVAS_WIDTH // 2 - 50, CANVAS_HEIGHT // 2), 50, "Red")
-    else:
-        ball.draw(canvas)
+    inter.update()
+    Character.update()
+    Character_2.update()
+    ball.update()
+    Character.draw(canvas)
+    Character_2.draw(canvas)
+    ball.draw(canvas)
 
-    player1.draw(canvas)
-    player2.draw(canvas)
-
-    canvas.draw_text(f"P1 Score: {game.player1_score}", (50, 30), 20, "White")
-    canvas.draw_text(f"P2 Score: {game.player2_score}", (CANVAS_WIDTH - 150, 30), 20, "White")
-
-def key_down(key):
-    if key in keys:
-        keys[key] = True
-
-def key_up(key):
-    if key in keys:
-        keys[key] = False
-
-game = Game()
-ball = Ball(BALL_RADIUS)
-
-player1 = Player(
-    position=Vector(50, CANVAS_HEIGHT / 2), 
-    radius=15, 
-    speed=1, 
-    key_map={"up": simplegui.KEY_MAP["w"], "down": simplegui.KEY_MAP["s"],
-             "left": simplegui.KEY_MAP["a"], "right": simplegui.KEY_MAP["d"]},
-    sprite_urls={
-        "Idle": "https://i.imgur.com/QEGGeXY.png", 
-        "Run": "https://i.imgur.com/DSTxdb0.png", 
-        "Attack": "https://i.imgur.com/ND8Mi41.png"  
-    }
-)
-
-player2 = Player(
-    position=Vector(CANVAS_WIDTH - 50, CANVAS_HEIGHT / 2), 
-    radius=15, 
-    speed=1, 
-    key_map={"up": simplegui.KEY_MAP["up"], "down": simplegui.KEY_MAP["down"],
-             "left": simplegui.KEY_MAP["left"], "right": simplegui.KEY_MAP["right"]},
-    sprite_urls={
-        "Idle": "https://i.imgur.com/5F7px4p.png", 
-        "Run": "https://i.imgur.com/xY1P0B0.png",  
-        "Attack": "https://i.imgur.com/5eD8bnj.png"  
-    }
-)
-
-frame = simplegui.create_frame("Football Game", CANVAS_WIDTH, CANVAS_HEIGHT)
+frame = simplegui.create_frame('Game', 900, 400)
+frame.set_canvas_background('blue')
 frame.set_draw_handler(draw)
-frame.set_keydown_handler(key_down)
-frame.set_keyup_handler(key_up)
-
-frame.start()
-frame.set_keydown_handler(key_down)
-frame.set_keyup_handler(key_up)
-
-frame.start()
+frame.set_keydown_handler(keyboard.keyDown)
+frame.set_keyup_handler(keyboard.keyUp)
+frame.start() 
