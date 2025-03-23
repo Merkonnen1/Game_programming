@@ -144,9 +144,9 @@ class Ball:
         self.apply_curve()
     
     def apply_curve(self):
-    if abs(self.vel.get_p()[0]) > 0.5:
-        curve_strength = abs(self.vel.get_p()[0]) * 0.4  
-        self.vel.add(Vector(0, curve_strength if self.vel.get_p()[0] > 0 else -curve_strength))
+        if abs(self.vel.get_p()[0]) > 0.5:
+            curve_strength = abs(self.vel.get_p()[0]) * 0.4  
+            self.vel.add(Vector(0, curve_strength if self.vel.get_p()[0] > 0 else -curve_strength))
   
 class Interaction:
     def __init__(self, player_1, player_2, keyboard, ball):
