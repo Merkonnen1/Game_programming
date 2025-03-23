@@ -51,7 +51,7 @@ class Character:
 
     def update(self):
         self.pos.add(self.vel)
-        self.vel.multiply(0.85)
+        self.vel.multiply(0.75)
         if self.current == "Attack":
             self.frame_count += 1
 
@@ -144,9 +144,10 @@ class Ball:
         self.apply_curve()
     
     def apply_curve(self):
-        if abs(self.vel.get_p()[0]) > 0.5:
-            self.vel.add(Vector(0, 0.2 if self.vel.get_p()[0] > 0 else -0.2))  
-
+    if abs(self.vel.get_p()[0]) > 0.5:
+        curve_strength = abs(self.vel.get_p()[0]) * 0.4  
+        self.vel.add(Vector(0, curve_strength if self.vel.get_p()[0] > 0 else -curve_strength))
+  
 class Interaction:
     def __init__(self, player_1, player_2, keyboard, ball):
         self.players = {"player_1": player_1, "player_2": player_2}
