@@ -38,6 +38,7 @@ def draw(canvas):
         canvas.draw_text("Play", [button_x + 20, button_y + 30], 24, "Black", "monospace")
         frame.set_canvas_background("green")
     else:
+        # ADD ACTUAL GAME HERE
         canvas.draw_text("Game is running...", [150, 100], 36, "Black")
 
 frame = simplegui.create_frame("Welcome Screen", WIDTH, HEIGHT)
