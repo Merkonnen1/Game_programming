@@ -195,7 +195,6 @@ ball = Ball()
 keyboard = Keyboard(Character, Character_2)
 inter = Interaction(Character, Character_2, keyboard, ball)
 
-# Now you can use `inter` in your `draw_game` function
 def draw_game(canvas):
     inter.update()
     Character.update()
