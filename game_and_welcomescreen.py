@@ -236,7 +236,7 @@ def draw(canvas):
         draw_game(canvas)
        
 
-frame = simplegui.create_frame("Welcome Screen", WIDTH, HEIGHT)
+frame = simplegui.create_frame("Game", WIDTH, HEIGHT)
 frame.set_draw_handler(draw)
 frame.set_mouseclick_handler(start_game)
 frame.start()
