@@ -4,6 +4,8 @@ except ImportError:
     import SimpleGUICS2Pygame.simpleguics2pygame as simplegui
 from user304_rsf8mD0BOQ_1 import Vector
 
+import math
+
 WIDTH = 1000
 HEIGHT = 450
 game_started = False
@@ -121,32 +123,59 @@ class Ball:
         self.pos = Vector(WIDTH / 2, HEIGHT /2)
         self.vel = Vector(0, 0)
         self.radius = 15
+        self.spots = self.generate_even_spots()
+        
+        
+    def generate_even_spots(self):
+        spots = []
+        num_spots = 5 
+        for i in range(num_spots):
+            angle = (2 * math.pi / num_spots) * i
+            x_offset = self.radius * 0.6 * math.cos(angle)
+            y_offset = self.radius * 0.6 * math.sin(angle)
+            spots.append(Vector(x_offset, y_offset))
+        return spots
+    
+    
     
     def update(self):
         self.pos.add(self.vel)
-        self.vel.multiply(0.98)  
-        
+        self.vel.multiply(0.97)
       
         if self.pos.x - self.radius < 0:  
             self.pos.x = self.radius
             self.vel.x *= -0.7  
             
-        if self.pos.x + self.radius > WIDTH: 
-            self.pos.x = WIDTH - self.radius
+        if self.pos.x + self.radius > 1000: 
+            self.pos.x = 1000 - self.radius
             self.vel.x *= -0.7  
             
         if self.pos.y - self.radius < 0: 
             self.pos.y = self.radius
             self.vel.y *= -0.7 
             
-        if self.pos.y + self.radius > HEIGHT:  
-            self.pos.y = HEIGHT - self.radius
-            self.vel.y *= -0.7 
+        if self.pos.y + self.radius > 450:  
+            self.pos.y = 450 - self.radius
+            self.vel.y *= -0.7
 
-        
+        self.rotate_spots()
+
+    
+    def rotate_spots(self):
+        rotation_angle = self.vel.get_p()[0] * 0.05
+        for i, spot in enumerate(self.spots):
+            x = spot.x
+            y = spot.y
+            rotated_x = x * math.cos(rotation_angle) - y * math.sin(rotation_angle)
+            rotated_y = x * math.sin(rotation_angle) + y * math.cos(rotation_angle)
+            self.spots[i] = Vector(rotated_x, rotated_y)
+    
     def draw(self, canvas):
         canvas.draw_circle(self.pos.get_p(), self.radius, 1, "White", "White")
-    
+        for spot in self.spots:
+            spot_pos = self.pos.copy().add(spot)
+            canvas.draw_circle(spot_pos.get_p(), self.radius // 4, 1, "Black", "Black")
+            
     def kick(self, direction, player_velocity):
         self.vel.add(direction)
         self.vel.add(player_velocity.multiply(0.4))  
