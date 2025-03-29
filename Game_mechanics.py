@@ -72,7 +72,7 @@ class Interaction:
             other_player = self.get_other_player(player_name)
             controls = self.keyboard.players[player_name]["controls"]
 
-            self.move_player(player, controls, other_player, 30, 970, 15, 390)
+            self.move_player(player, controls, other_player, 30, 940, 30, 370)
 
             if self.is_player_near_ball(player):
                 kick_direction = self.get_kick_direction(player_name)
