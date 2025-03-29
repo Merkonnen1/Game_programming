@@ -124,24 +124,24 @@ class Ball:
     
     def update(self):
         self.pos.add(self.vel)
-        self.vel.multiply(0.97)  
+        self.vel.multiply(0.98)  
         
       
         if self.pos.x - self.radius < 0:  
             self.pos.x = self.radius
-            self.vel.x *= -0.8  
+            self.vel.x *= -0.7  
             
         if self.pos.x + self.radius > WIDTH: 
             self.pos.x = WIDTH - self.radius
-            self.vel.x *= -0.8  
+            self.vel.x *= -0.7  
             
         if self.pos.y - self.radius < 0: 
             self.pos.y = self.radius
-            self.vel.y *= -0.8 
+            self.vel.y *= -0.7 
             
         if self.pos.y + self.radius > HEIGHT:  
             self.pos.y = HEIGHT - self.radius
-            self.vel.y *= -0.8 
+            self.vel.y *= -0.7 
 
         
     def draw(self, canvas):
@@ -149,19 +149,22 @@ class Ball:
     
     def kick(self, direction, player_velocity):
         self.vel.add(direction)
-        self.vel.add(player_velocity.multiply(0.5))  
-        #self.apply_curve()
+        self.vel.add(player_velocity.multiply(0.4))  
+        self.apply_curve()
     
-    #def apply_curve(self):
-        #if abs(self.vel.get_p()[0]) > 0.5:
-           # curve_strength = abs(self.vel.get_p()[0]) * 0.4  
-           # self.vel.add(Vector(0, curve_strength if self.vel.get_p()[0] > 0 else -curve_strength))
+    def apply_curve(self):
+        if abs(self.vel.x) > 0.5:
+            curve_strength = abs(self.vel.x) * 0.4  
+            self.vel.add(Vector(0, curve_strength if self.vel.x > 0 else -curve_strength))
+
     def offset_l(self):
         return self.pos.x - self.radius 
     def offset_r(self):
         return self.pos.x + self.radius
     def bounce(self, normal):
         self.vel.reflect(normal)
+        
+        
 class Interaction:
     def __init__(self, player_1, player_2, keyboard, ball, left_wall, right_wall):
         self.players = {"player_1": player_1, "player_2": player_2}
@@ -169,8 +172,8 @@ class Interaction:
         self.ball = ball
         self.left_wall = left_wall
         self.right_wall = right_wall
-        self.score = {"player_1": 0, "player_2": 0} 
-    
+        self.score = {"player_1": 0, "player_2": 0}
+
     def update(self):
         if self.ball.offset_l() <= self.left_wall.pos.x:
             self.score["player_2"] += 1
@@ -184,46 +187,34 @@ class Interaction:
             self.reset_ball()
             self.reset_char1()
             self.reset_char2()
-            
+
         if self.score["player_1"] == 3 or self.score["player_2"] == 3:
             self.reset_game()
             return
-        
         self.ball.update()
-        
         for player_name, player in self.players.items():
             controls = self.keyboard.players[player_name]["controls"]
-            self.move_player(player, controls, 70, 820, 70, 300)
-            
+            self.move_player(player, controls, 40, 940, 30, 370)
             if self.is_player_near_ball(player):
                 kick_direction = Vector(5, 0) if player_name == 'player_1' else Vector(-5, 0)
                 self.ball.kick(kick_direction, player.vel)
-    
+
     def move_player(self, player, controls, left_limit, right_limit, up_limit, down_limit):
-        #if controls["right"] and player.pos.get_p()[0] < right_limit:
-            #player.vel.add(Vector(1, 0))
-        #if controls["left"] and player.pos.get_p()[0] > left_limit:
-            #player.vel.subtract(Vector(1, 0))
-        #if controls["up"] and player.pos.get_p()[1] > up_limit:
-            #player.vel.subtract(Vector(0, 1))
-        #if controls["down"] and player.pos.get_p()[1] < down_limit:
-           # player.vel.add(Vector(0, 1))
-            
-        if controls["right"]:
+        if controls["right"] and player.pos.x < right_limit:
             player.vel.add(Vector(1, 0))
-        if controls["left"]:
+        if controls["left"] and player.pos.x > left_limit:
             player.vel.subtract(Vector(1, 0))
-        if controls["up"]:
+        if controls["up"] and player.pos.y > up_limit:
             player.vel.subtract(Vector(0, 1))
-        if controls["down"]:
+        if controls["down"] and player.pos.y < down_limit:
             player.vel.add(Vector(0, 1))
-    
+
     def is_player_near_ball(self, player):
-        return (player.pos.get_p()[0] < self.ball.pos.get_p()[0] + self.ball.radius and
-                player.pos.get_p()[0] + 50 > self.ball.pos.get_p()[0] and
-                player.pos.get_p()[1] < self.ball.pos.get_p()[1] + self.ball.radius and
+        return (player.pos.get_p()[0] < self.ball.pos.get_p()[0] + self.ball.radius and 
+                player.pos.get_p()[0] + 50 > self.ball.pos.get_p()[0] and 
+                player.pos.get_p()[1] < self.ball.pos.get_p()[1] + self.ball.radius and 
                 player.pos.get_p()[1] + 50 > self.ball.pos.get_p()[1])
-    
+
     def reset_game(self):
         self.score = {"player_1": 0, "player_2": 0}
         self.reset_ball()
@@ -231,22 +222,24 @@ class Interaction:
         self.reset_char2()
         global game_started
         game_started = False
-        
+
     def reset_ball(self):
         self.ball.pos = Vector(WIDTH / 2, HEIGHT / 2)
         self.ball.vel = Vector(0, 0)
-    def reset_char1(self): 
+
+    def reset_char1(self):
         self.players["player_1"].pos = Vector(WIDTH / 8, 200)
-    def reset_char2(self): 
-        self.players["player_2"].pos = Vector(WIDTH * 7/8,200)
+
+    def reset_char2(self):
+        self.players["player_2"].pos = Vector(WIDTH * 7 / 8, 200)
+
     def draw(self, canvas):
         canvas.draw_text(f"Player 1: {self.score['player_1']}", (70, 50), 27, "White")
         canvas.draw_text(f"Player 2: {self.score['player_2']}", (WIDTH - 200, 50), 27, "White")
-        
         self.left_wall.draw(canvas)
         self.right_wall.draw(canvas)
         self.ball.draw(canvas)
-        
+
 class Wall:
     def __init__(self, x, y, border, color):
         self.pos = Vector(x, y)
