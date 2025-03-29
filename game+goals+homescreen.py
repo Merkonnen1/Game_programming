@@ -13,7 +13,7 @@ game_frame = None
 button_x = WIDTH / 2 - 50
 button_y = HEIGHT * 2 / 3
 button_width = 100
-button_height = 50
+button_height = 60
 
 class Spritesheet:
     def __init__(self, url, rows, cols, time):
@@ -171,7 +171,7 @@ class Ball:
             self.spots[i] = Vector(rotated_x, rotated_y)
     
     def draw(self, canvas):
-        canvas.draw_circle(self.pos.get_p(), self.radius, 1, "White", "White")
+        canvas.draw_circle(self.pos.get_p(), self.radius, 1, "Black", "White")
         for spot in self.spots:
             spot_pos = self.pos.copy().add(spot)
             canvas.draw_circle(spot_pos.get_p(), self.radius // 4, 1, "Black", "Black")
@@ -263,8 +263,8 @@ class Interaction:
         self.players["player_2"].pos = Vector(WIDTH * 7 / 8, 200)
 
     def draw(self, canvas):
-        canvas.draw_text(f"Player 1: {self.score['player_1']}", (70, 50), 27, "White")
-        canvas.draw_text(f"Player 2: {self.score['player_2']}", (WIDTH - 200, 50), 27, "White")
+        canvas.draw_text(f"Player 1: {self.score['player_1']}", (70, 55), 20, "Black", "monospace")
+        canvas.draw_text(f"Player 2: {self.score['player_2']}", (WIDTH - 200, 55), 20, "Black", "monospace")
         self.left_wall.draw(canvas)
         self.right_wall.draw(canvas)
         self.ball.draw(canvas)
@@ -298,11 +298,18 @@ Character_2 = Character(False)
 Character = Character(True)
 ball = Ball()
 keyboard = Keyboard(Character, Character_2)
-left_wall = Wall(0, 20, 5, "White")
-right_wall = Wall(WIDTH, 20, 5, "White")
+left_wall = Wall(20, 20, 5, "White")
+right_wall = Wall(WIDTH - 20, 20, 5, "White")
 inter = Interaction(Character, Character_2, keyboard, ball, left_wall, right_wall)
 
 def draw_game(canvas):
+    bg_image = simplegui.load_image('https://www.cs.rhul.ac.uk/home/zmac220/cs1822/pitch.png')
+    if bg_image.get_width() > 0 and bg_image.get_height() > 0:
+        canvas.draw_image(bg_image, 
+                          (bg_image.get_width() / 2, bg_image.get_height() / 2), 
+                          (bg_image.get_width(), bg_image.get_height()), 
+                          (WIDTH / 2, HEIGHT / 2), 
+                          (WIDTH, HEIGHT))
     inter.update()
     Character.update()
     Character_2.update()
@@ -316,6 +323,7 @@ def draw_game(canvas):
 
 def start_game(position):
     global game_started
+
     x, y = position
     if button_x <= x <= button_x + button_width and button_y <= y <= button_y + button_height:
         game_started = True
@@ -324,22 +332,20 @@ def start_game(position):
 def draw(canvas):
     global game_started
     if not game_started:
-        welcome_text = "Welcome to the Football Game!"
-        instructions_text = "Click 'Play' to start"
-        title_x = (WIDTH - 500) / 2
-        instructions_x = (WIDTH - 300) / 2
-        title_y = HEIGHT / 4
-        instructions_y = title_y + 70
+        welcome_txt = "Welcome to the Football Game!"
+        instructions_txt = "click 'Play' to start"
+        comment_txt =  "first player to score 3 goals wins!"
 
-        canvas.draw_text(welcome_text, [title_x, title_y], 36, "White", "monospace")
-        canvas.draw_text(instructions_text, [instructions_x, instructions_y], 24, "White", "monospace")
+        canvas.draw_text(welcome_txt, [120, HEIGHT / 4], 45, "White", "monospace")
+        canvas.draw_text(comment_txt, [(WIDTH - 500) / 2, 170 ], 25, "White", "monospace")
+        canvas.draw_text(instructions_txt, [(WIDTH - 300) / 2, 270], 25, "White", "monospace")
         
         canvas.draw_polygon([(button_x, button_y), 
                              (button_x + button_width, button_y), 
                              (button_x + button_width, button_y + button_height), 
                              (button_x, button_y + button_height)], 
                             1, "Black", "white")
-        canvas.draw_text("Play", [button_x + 20, button_y + 30], 24, "Black", "monospace")
+        canvas.draw_text("Play", [button_x + 20, button_y + 35], 24, "Black", "monospace")
         frame.set_canvas_background("green")
     else:
         draw_game(canvas)
