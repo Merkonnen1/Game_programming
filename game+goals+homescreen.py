@@ -140,7 +140,7 @@ class Ball:
     
     def update(self):
         self.pos.add(self.vel)
-        self.vel.multiply(0.97)
+        self.vel.multiply(0.98)
       
         if self.pos.x - self.radius < 0:  
             self.pos.x = self.radius
