@@ -204,15 +204,16 @@ class Interaction:
         self.score = {"player_1": 0, "player_2": 0}
 
     def update(self):
-        if self.ball.offset_l() <= self.left_wall.pos.x:
+        goal_top = HEIGHT / 3 
+        goal_bottom = HEIGHT * 2 / 3
+
+        if self.ball.offset_l() <= self.left_wall.pos.x and goal_top <= self.ball.pos.y <= goal_bottom:
             self.score["player_2"] += 1
-            self.ball.bounce(self.left_wall.normal)
             self.reset_ball()
             self.reset_char1()
             self.reset_char2()
-        elif self.ball.offset_r() >= self.right_wall.pos.x:
+        elif self.ball.offset_r() >= self.right_wall.pos.x and goal_top <= self.ball.pos.y <= goal_bottom:
             self.score["player_1"] += 1
-            self.ball.bounce(self.right_wall.normal)
             self.reset_ball()
             self.reset_char1()
             self.reset_char2()
@@ -221,6 +222,7 @@ class Interaction:
             self.reset_game()
             return
         self.ball.update()
+        
         for player_name, player in self.players.items():
             controls = self.keyboard.players[player_name]["controls"]
             self.move_player(player, controls, 40, 940, 30, 370)
