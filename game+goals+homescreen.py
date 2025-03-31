@@ -5,6 +5,7 @@ except ImportError:
 from user304_rsf8mD0BOQ_1 import Vector
 
 import math
+import time
 
 WIDTH = 1000
 HEIGHT = 450
@@ -120,12 +121,13 @@ class Keyboard:
                 self.players[player]["instance"].current = 'Idle'   
 class Ball:
     def __init__(self):
-        self.pos = Vector(WIDTH / 2, HEIGHT /2)
+        self.pos = Vector(WIDTH / 2, HEIGHT / 2)
         self.vel = Vector(0, 0)
         self.radius = 15
         self.spots = self.generate_even_spots()
-        
-        
+        self.kick_time = None  
+        self.kicked = False  
+
     def generate_even_spots(self):
         spots = []
         num_spots = 5 
@@ -136,31 +138,33 @@ class Ball:
             spots.append(Vector(x_offset, y_offset))
         return spots
     
-    
-    
     def update(self):
+        if not self.kicked:
+            return  
+        
         self.pos.add(self.vel)
-        self.vel.multiply(0.99)
+        self.vel.multiply(0.99)  
       
+        
         if self.pos.x - self.radius < 0:  
             self.pos.x = self.radius
             self.vel.x *= -0.7  
-            
-        if self.pos.x + self.radius > 1000: 
-            self.pos.x = 1000 - self.radius
+        if self.pos.x + self.radius > WIDTH: 
+            self.pos.x = WIDTH - self.radius
             self.vel.x *= -0.7  
-            
         if self.pos.y - self.radius < 0: 
             self.pos.y = self.radius
             self.vel.y *= -0.7 
-            
-        if self.pos.y + self.radius > 450:  
-            self.pos.y = 450 - self.radius
+        if self.pos.y + self.radius > HEIGHT:  
+            self.pos.y = HEIGHT - self.radius
             self.vel.y *= -0.7
+
+       
+        if self.kick_time and time.time() - self.kick_time > 0.3:
+            self.curve_toward_goal()
 
         self.rotate_spots()
 
-    
     def rotate_spots(self):
         rotation_angle = self.vel.get_p()[0] * 0.05
         for i, spot in enumerate(self.spots):
@@ -175,16 +179,32 @@ class Ball:
         for spot in self.spots:
             spot_pos = self.pos.copy().add(spot)
             canvas.draw_circle(spot_pos.get_p(), self.radius // 4, 1, "Black", "Black")
-            
+    
     def kick(self, direction, player_velocity):
         self.vel.add(direction)
         self.vel.add(player_velocity.multiply(0.4))  
-        self.apply_curve()
-    
-    def apply_curve(self):
-        if abs(self.vel.x) > 0.5:
-            curve_strength = abs(self.vel.x) * 0.4  
-            self.vel.add(Vector(0, curve_strength if self.vel.x > 0 else -curve_strength))
+        self.kick_time = time.time()  
+        self.kicked = True 
+
+    def curve_toward_goal(self):
+        
+        target_x = WIDTH - 50 if self.vel.x > 0 else 50
+        target_y = HEIGHT // 2  
+
+        
+        goal_direction = Vector(target_x - self.pos.x, target_y - self.pos.y)
+        goal_direction.normalize()
+        
+        
+        curve_intensity = 0.05  
+        self.vel.add(goal_direction.multiply(curve_intensity))
+
+    def reset(self):
+        """Reset ball position but do not move until kicked again."""
+        self.pos = Vector(WIDTH / 2, HEIGHT / 2)
+        self.vel = Vector(0, 0)
+        self.kicked = False  
+        self.kick_time = None
 
     def offset_l(self):
         return self.pos.x - self.radius 
