@@ -189,10 +189,7 @@ class Ball:
     def offset_l(self):
         return self.pos.x - self.radius 
     def offset_r(self):
-        return self.pos.x + self.radius
-    def bounce(self, normal):
-        self.vel.reflect(normal)
-        
+        return self.pos.x + self.radius    
         
 class Interaction:
     def __init__(self, player_1, player_2, keyboard, ball, left_goal, right_goal):
@@ -285,8 +282,6 @@ class Goal:
         elif ball.offset_l() <= self.pos.x + self.width:
             return True
         return False
-    def bounce(self, normal):
-        self.vel.reflect(normal)
 
     def draw(self, canvas):
         canvas.draw_line(
