@@ -195,24 +195,24 @@ class Ball:
         
         
 class Interaction:
-    def __init__(self, player_1, player_2, keyboard, ball, left_wall, right_wall):
+    def __init__(self, player_1, player_2, keyboard, ball, left_goal, right_goal):
         self.players = {"player_1": player_1, "player_2": player_2}
         self.keyboard = keyboard
         self.ball = ball
-        self.left_wall = left_wall
-        self.right_wall = right_wall
+        self.left_goal = left_goal
+        self.right_goal = right_goal
         self.score = {"player_1": 0, "player_2": 0}
 
     def update(self):
         goal_top = HEIGHT / 3 
         goal_bottom = HEIGHT * 2 / 3
 
-        if self.ball.offset_l() <= self.left_wall.pos.x and goal_top <= self.ball.pos.y <= goal_bottom:
+        if self.ball.offset_l() <= self.left_goal.pos.x and goal_top <= self.ball.pos.y <= goal_bottom:
             self.score["player_2"] += 1
             self.reset_ball()
             self.reset_char1()
             self.reset_char2()
-        elif self.ball.offset_r() >= self.right_wall.pos.x and goal_top <= self.ball.pos.y <= goal_bottom:
+        elif self.ball.offset_r() >= self.right_goal.pos.x and goal_top <= self.ball.pos.y <= goal_bottom:
             self.score["player_1"] += 1
             self.reset_ball()
             self.reset_char1()
@@ -222,7 +222,6 @@ class Interaction:
             self.reset_game()
             return
         self.ball.update()
-        
         for player_name, player in self.players.items():
             controls = self.keyboard.players[player_name]["controls"]
             self.move_player(player, controls, 40, 940, 30, 370)
@@ -267,11 +266,11 @@ class Interaction:
     def draw(self, canvas):
         canvas.draw_text(f"Player 1: {self.score['player_1']}", (70, 55), 20, "Black", "monospace")
         canvas.draw_text(f"Player 2: {self.score['player_2']}", (WIDTH - 200, 55), 20, "Black", "monospace")
-        self.left_wall.draw(canvas)
-        self.right_wall.draw(canvas)
+        self.left_goal.draw(canvas)
+        self.right_goal.draw(canvas)
         self.ball.draw(canvas)
 
-class Wall:
+class Goal:
     def __init__(self, x, y, border, color):
         self.pos = Vector(x, y)
         self.x = x
@@ -300,9 +299,9 @@ Character_2 = Character(False)
 Character = Character(True)
 ball = Ball()
 keyboard = Keyboard(Character, Character_2)
-left_wall = Wall(20, 20, 5, "White")
-right_wall = Wall(WIDTH - 20, 20, 5, "White")
-inter = Interaction(Character, Character_2, keyboard, ball, left_wall, right_wall)
+left_goal = Goal(20, 20, 5, "White")
+right_goal = Goal(WIDTH - 20, 20, 5, "White")
+inter = Interaction(Character, Character_2, keyboard, ball, left_goal, right_goal)
 
 def draw_game(canvas):
     bg_image = simplegui.load_image('https://www.cs.rhul.ac.uk/home/zmac220/cs1822/pitch.png')
@@ -320,8 +319,8 @@ def draw_game(canvas):
     Character.draw(canvas)
     Character_2.draw(canvas)
     ball.draw(canvas)
-    left_wall.draw(canvas)
-    right_wall.draw(canvas)
+    left_goal.draw(canvas)
+    right_goal.draw(canvas)
 
 def start_game(position):
     global game_started
