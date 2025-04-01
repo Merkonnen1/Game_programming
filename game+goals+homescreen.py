@@ -327,6 +327,8 @@ def draw_game(canvas):
                           (WIDTH / 2, HEIGHT / 2), 
                           (WIDTH, HEIGHT))
     inter.update()
+    left_goal.draw(canvas)
+    right_goal.draw(canvas)
     Character.update()
     Character_2.update()
     ball.update()
@@ -334,8 +336,6 @@ def draw_game(canvas):
     Character.draw(canvas)
     Character_2.draw(canvas)
     ball.draw(canvas)
-    left_goal.draw(canvas)
-    right_goal.draw(canvas)
 
 def start_game(position):
     global game_started
