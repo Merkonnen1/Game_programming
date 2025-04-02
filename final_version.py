@@ -476,8 +476,6 @@ def draw(canvas):
     else:
         draw_game(canvas)
         
-WIDTH = 1000
-HEIGHT = 450
 game_started = False
 game_frame = None
 button_x = WIDTH / 2 - 250
