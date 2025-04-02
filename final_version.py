@@ -280,7 +280,7 @@ class Interaction:
                 self.move_player(player, controls, 120, 950 / 2, 30, 370)
             else:
                 if two_player:
-                    self.move_player(player, controls,1050 / 2, 1050 - 50, 30, 370)
+                    self.move_player(player, controls,1050 / 2, 930 - 50, 30, 370)
                 else:
                     self.move_ai(player)
             
