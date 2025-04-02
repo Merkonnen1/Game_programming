@@ -405,27 +405,25 @@ def draw_game(canvas):
 def finish_game(canvas):
     global player_1_won
     if player_1_won:
-        welcome_txt = "Player 1 won!"
-        instructions_txt = "Which mode you would like to play?"
+        winner_txt = "Player 1 won!"
+        prompt_txt = "Would you like to play again?"
 
-        canvas.draw_text(welcome_txt, [120, HEIGHT / 4], 45, "White", "monospace")
-        #canvas.draw_text(comment_txt, [(WIDTH - 500) / 2, 170], 25, "White", "monospace")
-        canvas.draw_text(instructions_txt, [(WIDTH - 300) / 2, 270], 25, "White", "monospace")
+        canvas.draw_text(winner_txt, [120, HEIGHT / 4], 45, "White", "monospace")
+        canvas.draw_text(prompt_txt, [(WIDTH - 300) / 2, 270], 25, "White", "monospace")
 
         canvas.draw_polygon([(button_x, button_y),
-                             (button_x + button_width, button_y),
-                             (button_x + button_width, button_y + button_height),
+                             (button_x + PAbutton_width, button_y),
+                             (button_x + PAbutton_width, button_y + button_height),
                              (button_x, button_y + button_height)],
                             1, "Black", "white")
         canvas.draw_text("Play", [button_x + 20, button_y + 30], 24, "Black", "monospace")
         frame.set_canvas_background("green")
     else:
-        welcome_txt = "Player 2 won!"
-        instructions_txt = "Which mode you would like to play?"
+        winner_txt = "Player 2 won!"
+        prompt_txt = "Would you like to play again?"
 
-        canvas.draw_text(welcome_txt, [120, HEIGHT / 4], 45, "White", "monospace")
-        #canvas.draw_text(comment_txt, [(WIDTH - 500) / 2, 170], 25, "White", "monospace")
-        canvas.draw_text(instructions_txt, [120, 270], 25, "White", "monospace")
+        canvas.draw_text(winner_txt, [120, HEIGHT / 4], 45, "White", "monospace")
+        canvas.draw_text(prompt_txt, [120, 270], 25, "White", "monospace")
 
         canvas.draw_polygon([(button_x, button_y),
                              (button_x + PAbutton_width, button_y),
