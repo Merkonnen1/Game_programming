@@ -11,11 +11,13 @@ WIDTH = 1000
 HEIGHT = 450
 game_started = False
 game_frame = None
-button_x = WIDTH / 2 - 50
+button_x = WIDTH / 2 - 250
+button_2_x = WIDTH / 2 + 100
 button_y = HEIGHT * 2 / 3
-button_width = 100
+button_2_y = HEIGHT * 2 / 3
+button_width = 210
+PAbutton_width = 100
 button_height = 60
-
 
 class Spritesheet:
     def __init__(self, url, rows, cols, time):
@@ -405,12 +407,11 @@ def draw_game(canvas):
 def finish_game(canvas):
     global player_1_won
     if player_1_won:
-        welcome_txt = "Player 1 has won"
+        welcome_txt = "Player 1 won!"
         instructions_txt = "Which mode you would like to play?"
-        comment_txt = "first player to score 3 goals wins!"
 
         canvas.draw_text(welcome_txt, [120, HEIGHT / 4], 45, "White", "monospace")
-        canvas.draw_text(comment_txt, [(WIDTH - 500) / 2, 170], 25, "White", "monospace")
+        #canvas.draw_text(comment_txt, [(WIDTH - 500) / 2, 170], 25, "White", "monospace")
         canvas.draw_text(instructions_txt, [(WIDTH - 300) / 2, 270], 25, "White", "monospace")
 
         canvas.draw_polygon([(button_x, button_y),
@@ -418,23 +419,22 @@ def finish_game(canvas):
                              (button_x + button_width, button_y + button_height),
                              (button_x, button_y + button_height)],
                             1, "Black", "white")
-        canvas.draw_text("Play", [button_x + 20, button_y + 35], 24, "Black", "monospace")
+        canvas.draw_text("Play", [button_x + 20, button_y + 30], 24, "Black", "monospace")
         frame.set_canvas_background("green")
     else:
-        welcome_txt = "Player 2 has won"
+        welcome_txt = "Player 2 won!"
         instructions_txt = "Which mode you would like to play?"
-        comment_txt = "first player to score 3 goals wins!"
 
         canvas.draw_text(welcome_txt, [120, HEIGHT / 4], 45, "White", "monospace")
-        canvas.draw_text(comment_txt, [(WIDTH - 500) / 2, 170], 25, "White", "monospace")
-        canvas.draw_text(instructions_txt, [(WIDTH - 300) / 2, 270], 25, "White", "monospace")
+        #canvas.draw_text(comment_txt, [(WIDTH - 500) / 2, 170], 25, "White", "monospace")
+        canvas.draw_text(instructions_txt, [120, 270], 25, "White", "monospace")
 
         canvas.draw_polygon([(button_x, button_y),
-                             (button_x + button_width, button_y),
-                             (button_x + button_width, button_y + button_height),
+                             (button_x + PAbutton_width, button_y),
+                             (button_x + PAbutton_width, button_y + button_height),
                              (button_x, button_y + button_height)],
                             1, "Black", "white")
-        canvas.draw_text("Play", [button_x + 20, button_y + 35], 24, "Black", "monospace")
+        canvas.draw_text("Play", [button_x + 20, button_y + 30], 24, "Black", "monospace")
         frame.set_canvas_background("green")
     
 def start_game(position):
@@ -475,16 +475,6 @@ def draw(canvas):
             frame.set_canvas_background("green")
     else:
         draw_game(canvas)
-        
-game_started = False
-game_frame = None
-button_x = WIDTH / 2 - 250
-button_2_x = WIDTH / 2 + 100
-button_y = HEIGHT * 2 / 3
-button_2_y = HEIGHT * 2 / 3
-button_width = 210
-button_height = 60
-
 
 game_finished = False
 player_1_won = False
