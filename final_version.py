@@ -11,8 +11,8 @@ WIDTH = 1000
 HEIGHT = 450
 game_started = False
 game_frame = None
-button_x = WIDTH / 2 - 250
-button_2_x = WIDTH / 2 + 100
+button_x = WIDTH / 2 - 280
+button_2_x = WIDTH / 2 + 70
 button_y = HEIGHT * 2 / 3
 button_2_y = HEIGHT * 2 / 3
 button_width = 210
@@ -443,13 +443,13 @@ def draw(canvas):
         if game_finished:
             finish_game(canvas)
         else:
-            welcome_txt = "Welcome to the Football Game!"
+            welcome_txt = "Welcome to the HeatSeeker!"
             instructions_txt = "Which mode you would like to play?"
-            comment_txt = "first player to score 3 goals wins!"
+            comment_txt = "First player to score 3 goals wins!"
 
-            canvas.draw_text(welcome_txt, [120, HEIGHT / 4], 45, "White", "monospace")
+            canvas.draw_text(welcome_txt, [150, HEIGHT / 4], 45, "White", "monospace")
             canvas.draw_text(comment_txt, [(WIDTH - 500) / 2, 170], 25, "White", "monospace")
-            canvas.draw_text(instructions_txt, [(WIDTH - 400) / 2, 270], 25, "White", "monospace")
+            canvas.draw_text(instructions_txt, [(WIDTH - 500) / 2, 270], 25, "White", "monospace")
 
             canvas.draw_polygon([(button_x, button_y),
                                  (button_x + button_width, button_y),
