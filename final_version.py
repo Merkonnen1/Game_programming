@@ -405,30 +405,41 @@ def finish_game(canvas):
         prompt_txt = "Would you like to play again?"
 
         canvas.draw_text(winner_txt, [120, HEIGHT / 4], 45, "White", "monospace")
-        canvas.draw_text(prompt_txt, [(WIDTH - 300) / 2, 270], 25, "White", "monospace")
+        canvas.draw_text(prompt_txt, [(WIDTH - 350) / 2, 270], 25, "White", "monospace")
 
         canvas.draw_polygon([(button_x, button_y),
-                             (button_x + PAbutton_width, button_y),
-                             (button_x + PAbutton_width, button_y + button_height),
-                             (button_x, button_y + button_height)],
-                            1, "Black", "white")
-        canvas.draw_text("Play", [button_x + 20, button_y + 30], 24, "Black", "monospace")
+                                 (button_x + button_width, button_y),
+                                 (button_x + button_width, button_y + button_height),
+                                 (button_x, button_y + button_height)],
+                                1, "Black", "white")
+        canvas.draw_polygon([(button_2_x, button_2_y),
+                                 (button_2_x + button_width, button_2_y),
+                                 (button_2_x + button_width, button_2_y + button_height),
+                                 (button_2_x, button_2_y + button_height)],
+                                1, "Black", "white")
+        canvas.draw_text("Single Player", [button_x + 14, button_y + 35], 24, "Black", "monospace")
+        canvas.draw_text("Two Player", [button_2_x + 30, button_2_y + 35], 24, "Black", "monospace")
         frame.set_canvas_background("green")
     else:
         winner_txt = "Player 2 won!"
         prompt_txt = "Would you like to play again?"
 
         canvas.draw_text(winner_txt, [120, HEIGHT / 4], 45, "White", "monospace")
-        canvas.draw_text(prompt_txt, [120, 270], 25, "White", "monospace")
+        canvas.draw_text(prompt_txt, [(WIDTH - 390) / 2, 270], 25, "White", "monospace")
 
         canvas.draw_polygon([(button_x, button_y),
-                             (button_x + PAbutton_width, button_y),
-                             (button_x + PAbutton_width, button_y + button_height),
-                             (button_x, button_y + button_height)],
-                            1, "Black", "white")
-        canvas.draw_text("Play", [button_x + 20, button_y + 30], 24, "Black", "monospace")
+                                 (button_x + button_width, button_y),
+                                 (button_x + button_width, button_y + button_height),
+                                 (button_x, button_y + button_height)],
+                                1, "Black", "white")
+        canvas.draw_polygon([(button_2_x, button_2_y),
+                                 (button_2_x + button_width, button_2_y),
+                                 (button_2_x + button_width, button_2_y + button_height),
+                                 (button_2_x, button_2_y + button_height)],
+                                1, "Black", "white")
+        canvas.draw_text("Single Player", [button_x + 14, button_y + 35], 24, "Black", "monospace")
+        canvas.draw_text("Two Player", [button_2_x + 30, button_2_y + 35], 24, "Black", "monospace")
         frame.set_canvas_background("green")
-    
 def start_game(position):
     global game_started,two_player
     x, y = position
