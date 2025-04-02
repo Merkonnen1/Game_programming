@@ -337,14 +337,8 @@ class Interaction:
         global game_started
         game_started = False
 
-    def reset_ball(self, scored_on_player_name):
-        if scored_on_player_name == "player_1":
-            reset_position = Vector(WIDTH / 8, 200) 
-            self.ball.pos = Vector(reset_position.x + 50, reset_position.y)
-        elif scored_on_player_name == "player_2":       
-            reset_position = Vector(WIDTH * 7 / 8, 200) 
-            self.ball.pos = Vector(reset_position.x - 50, reset_position.y)
-
+    def reset_ball(self, scored_on_player_name=None):
+        self.ball.pos = Vector(WIDTH / 2, HEIGHT / 2)
         self.ball.vel = Vector(0, 0)
         self.ball.kicked = False
 
