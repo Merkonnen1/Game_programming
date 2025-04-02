@@ -277,10 +277,10 @@ class Interaction:
         for player_name, player in self.players.items():
             controls = self.keyboard.players[player_name]["controls"]
             if player_name == "player_1":
-                self.move_player(player, controls, 120, WIDTH / 2, 30, 370)
+                self.move_player(player, controls, 120, 950 / 2, 30, 370)
             else:
                 if two_player:
-                    self.move_player(player, controls, WIDTH / 2, WIDTH - 50, 30, 370)
+                    self.move_player(player, controls,1050 / 2, 1050 - 50, 30, 370)
                 else:
                     self.move_ai(player)
             
