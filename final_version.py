@@ -312,7 +312,7 @@ class Interaction:
         return calculation
 
     def move_ai(self, enemy):
-        max_enemy_speed = 2
+        max_enemy_speed = 2 + self.score["player_1"]
         ball_target_x = self.ball.pos.x
         ball_target_y = self.ball.pos.y
 
@@ -404,8 +404,8 @@ def finish_game(canvas):
         winner_txt = "Player 1 won!"
         prompt_txt = "Would you like to play again?"
 
-        canvas.draw_text(winner_txt, [120, HEIGHT / 4], 45, "White", "monospace")
-        canvas.draw_text(prompt_txt, [(WIDTH - 350) / 2, 270], 25, "White", "monospace")
+        canvas.draw_text(winner_txt, [300, HEIGHT / 4], 45, "White", "monospace")
+        canvas.draw_text(prompt_txt, [(WIDTH - 400) / 2, 270], 25, "White", "monospace")
 
         canvas.draw_polygon([(button_x, button_y),
                                  (button_x + button_width, button_y),
@@ -424,8 +424,8 @@ def finish_game(canvas):
         winner_txt = "Player 2 won!"
         prompt_txt = "Would you like to play again?"
 
-        canvas.draw_text(winner_txt, [120, HEIGHT / 4], 45, "White", "monospace")
-        canvas.draw_text(prompt_txt, [(WIDTH - 390) / 2, 270], 25, "White", "monospace")
+        canvas.draw_text(winner_txt, [300, HEIGHT / 4], 45, "White", "monospace")
+        canvas.draw_text(prompt_txt, [(WIDTH - 400) / 2, 270], 25, "White", "monospace")
 
         canvas.draw_polygon([(button_x, button_y),
                                  (button_x + button_width, button_y),
