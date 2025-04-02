@@ -156,6 +156,10 @@ class Ball:
         self.spots = self.generate_even_spots()
         self.kick_time = None
         self.kicked = False
+        self.trail_rectangles = []
+        self.max_trail_length = 20
+        self.trail_width = 8
+        self.last_hit_by = None
 
     def generate_even_spots(self):
         spots = []
@@ -170,6 +174,17 @@ class Ball:
     def update(self, players):
         if not self.kicked:
             return
+        
+        if self.kicked:
+            direction = self.vel.copy().normalize() if self.vel.length() > 0 else Vector(1, 0)
+            trail_info = {
+                'pos': self.pos.copy(),
+                'direction': direction,
+                'color': "Blue" if self.last_hit_by == "player_1" else "Red"
+            }
+            self.trail_rectangles.insert(0, trail_info)
+            if len(self.trail_rectangles) > self.max_trail_length:
+                self.trail_rectangles.pop()
 
         self.pos.add(self.vel)
         self.vel.multiply(0.99)
@@ -191,6 +206,26 @@ class Ball:
             self.curve_toward_goal()
 
         self.rotate_spots()
+    
+    def draw_rotated_rectangle(self, canvas, center, direction, width, height, color):
+        angle = math.atan2(direction.y, direction.x)
+        half_width = width / 2
+        half_height = height / 2
+        
+        corners = [
+            (-half_width, -half_height),
+            (half_width, -half_height),
+            (half_width, half_height),
+            (-half_width, half_height)
+        ]
+
+        rotated_corners = []
+        for x, y in corners:
+            rx = x * math.cos(angle) - y * math.sin(angle)
+            ry = x * math.sin(angle) + y * math.cos(angle)
+            rotated_corners.append((center.x + rx, center.y + ry))
+        
+        canvas.draw_polygon(rotated_corners, 1, color, color)
 
     def rotate_spots(self):
         rotation_angle = self.vel.get_p()[0] * 0.05
@@ -202,16 +237,33 @@ class Ball:
             self.spots[i] = Vector(rotated_x, rotated_y)
 
     def draw(self, canvas):
+        
+        for i, rect in enumerate(self.trail_rectangles):
+            alpha = int(255 * (1 - (i / len(self.trail_rectangles))))
+            color = rect['color']
+            
+            trail_height = self.trail_width * (1 - (i / (2 * len(self.trail_rectangles))))
+            
+            self.draw_rotated_rectangle(
+                canvas,
+                rect['pos'],
+                rect['direction'],
+                10,
+                trail_height,
+                color
+            )
+                
         canvas.draw_circle(self.pos.get_p(), self.radius, 1, "Black", "White")
         for spot in self.spots:
             spot_pos = self.pos.copy().add(spot)
             canvas.draw_circle(spot_pos.get_p(), self.radius // 4, 1, "Black", "Black")
 
-    def kick(self, direction, player_velocity):
+    def kick(self, direction, player_velocity, player_name):
         self.vel.add(direction)
         self.vel.add(player_velocity.multiply(0.4))
         self.kick_time = time.time()
         self.kicked = True
+        self.last_hit_by = player_name
 
     def curve_toward_goal(self):
 
@@ -229,6 +281,8 @@ class Ball:
         self.vel = Vector(0, 0)
         self.kicked = False
         self.kick_time = None
+        self.trail_rectangles = []
+        self.last_hit_by = None
 
     def offset_l(self):
         return self.pos.x - self.radius
@@ -252,12 +306,14 @@ class Interaction:
             self.score["player_2"] += 1
             self.reset_ball("player_1") 
             self.reset_char1()  
-            self.reset_char2()  
+            self.reset_char2()
+            self.ball.reset()
         elif self.ball.offset_r() >= self.right_wall.pos.x:
             self.score["player_1"] += 1
             self.reset_ball("player_2")  
             self.reset_char1()  
-            self.reset_char2()  
+            self.reset_char2()
+            self.ball.reset()
 
 
         
@@ -288,7 +344,7 @@ class Interaction:
                 if not self.ball.kicked:
                     self.ball.kicked = True  
                 kick_direction = Vector(5, 0) if player_name == "player_1" else Vector(-5, 0)
-                self.ball.kick(kick_direction, player.vel)
+                self.ball.kick(kick_direction, player.vel, player_name)
 
 
 
@@ -309,6 +365,10 @@ class Interaction:
                        player.pos.get_p()[1] + 50 > self.ball.pos.get_p()[1])
         if calculation:
             player.attack()
+            
+            player_name = "player_1" if player == self.players["player_1"] else "player_2"
+            kick_direction = Vector(5, 0) if player_name == "player_1" else Vector(-5, 0)
+            self.ball.kick(kick_direction, player.vel, player_name)  # Now passing 3 arguments
         return calculation
 
     def move_ai(self, enemy):
@@ -341,6 +401,9 @@ class Interaction:
         self.ball.pos = Vector(WIDTH / 2, HEIGHT / 2)
         self.ball.vel = Vector(0, 0)
         self.ball.kicked = False
+        self.ball.trail_rectangles = []  # Explicitly clear trail
+        self.ball.last_hit_by = None
+        
 
     def reset_char1(self):
         self.players["player_1"].pos = Vector(WIDTH / 8, 200)
