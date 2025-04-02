@@ -367,7 +367,7 @@ class Interaction:
             
             player_name = "player_1" if player == self.players["player_1"] else "player_2"
             kick_direction = Vector(5, 0) if player_name == "player_1" else Vector(-5, 0)
-            self.ball.kick(kick_direction, player.vel, player_name)  # Now passing 3 arguments
+            self.ball.kick(kick_direction, player.vel, player_name)
         return calculation
 
     def move_ai(self, enemy):
@@ -400,7 +400,7 @@ class Interaction:
         self.ball.pos = Vector(WIDTH / 2, HEIGHT / 2)
         self.ball.vel = Vector(0, 0)
         self.ball.kicked = False
-        self.ball.trail_rectangles = []  # Explicitly clear trail
+        self.ball.trail_rectangles = []
         self.ball.last_hit_by = None
         
 
