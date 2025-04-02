@@ -384,7 +384,7 @@ class Goal:
 
 
 def draw_game(canvas):
-    bg_image = simplegui.load_image('https://www.cs.rhul.ac.uk/home/zmac220/cs1822/pitch.png')
+    bg_image = simplegui.load_image('https://www.cs.rhul.ac.uk/home/zmac220/cs1822/footballpitch.png)
     if bg_image.get_width() > 0 and bg_image.get_height() > 0:
         canvas.draw_image(bg_image,
                           (bg_image.get_width() / 2, bg_image.get_height() / 2),
