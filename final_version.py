@@ -165,7 +165,7 @@ class Ball:
             spots.append(Vector(x_offset, y_offset))
         return spots
 
-    def update(self):
+    def update(self, players):
         if not self.kicked:
             return
 
@@ -245,18 +245,19 @@ class Interaction:
         self.score = {"player_1": 0, "player_2": 0}
 
     def update(self):
-        global game_finished,two_player,player_1_won
+        global game_finished, two_player, player_1_won
         if self.ball.offset_l() <= self.left_wall.pos.x:
             self.score["player_2"] += 1
-            self.reset_ball()
+            self.reset_ball("player_1")  
             self.reset_char1()
             self.reset_char2()
         elif self.ball.offset_r() >= self.right_wall.pos.x:
             self.score["player_1"] += 1
-            self.reset_ball()
+            self.reset_ball("player_2") 
             self.reset_char1()
             self.reset_char2()
 
+        
         if self.score["player_1"] == 3:
             self.reset_game()
             game_finished = True
@@ -266,21 +267,27 @@ class Interaction:
             self.reset_game()
             game_finished = True
             return
-        self.ball.update()
+
+        
+        self.ball.update(list(self.players.values()))
+        
         for player_name, player in self.players.items():
             controls = self.keyboard.players[player_name]["controls"]
             if player_name == "player_1":
-                self.move_player(player, controls, 120, 450, 30, 370)
+                self.move_player(player, controls, 120, WIDTH / 2, 30, 370)
             else:
-                print(two_player)
                 if two_player:
-                    self.move_player(player,controls,780,450,30,370)
+                    self.move_player(player, controls, WIDTH / 2, WIDTH - 50, 30, 370)
                 else:
                     self.move_ai(player)
+            
+            if self.is_player_near_ball(player):
+                if not self.ball.kicked:
+                    self.ball.kicked = True  
+                kick_direction = Vector(5, 0) if player_name == "player_1" else Vector(-5, 0)
+                self.ball.kick(kick_direction, player.vel)
 
-        if self.is_player_near_ball(player):
-            kick_direction = Vector(5, 0) if player_name == 'player_1' else Vector(-5, 0)
-            self.ball.kick(kick_direction, player.vel)
+
 
     def move_player(self, player, controls, left_limit, right_limit, up_limit, down_limit):
         if controls["right"] and player.pos.x < right_limit:
@@ -302,29 +309,41 @@ class Interaction:
         return calculation
 
     def move_ai(self, enemy):
-        max_enemy_speed = 7
-        base_speed = 3
-        reaction_factor = 0.7
+        max_enemy_speed = 7 
+        ball_target_x = self.ball.pos.x
+        ball_target_y = self.ball.pos.y
 
-        difference = self.ball.pos.y - enemy.pos.y
+        
+        if enemy.pos.x > WIDTH / 2:  
+            difference_y = ball_target_y - enemy.pos.y  
+            if abs(difference_y) > max_enemy_speed:
+                direction_y = difference_y / abs(difference_y)  
+                enemy.pos.y += direction_y * max_enemy_speed
+            else:
+                enemy.pos.y += difference_y
+            enemy.pos.y = max(30, min(370, enemy.pos.y))
 
-        enemy_speed = base_speed + abs(self.ball.vel.y) * reaction_factor
-        enemy_speed = min(enemy_speed, max_enemy_speed)
-
-        if abs(difference) > enemy_speed:
-            enemy.pos.y += enemy_speed * (difference / abs(difference))
 
     def reset_game(self):
         self.score = {"player_1": 0, "player_2": 0}
-        self.reset_ball()
+        self.reset_ball("center")
         self.reset_char1()
         self.reset_char2()
         global game_started
         game_started = False
 
-    def reset_ball(self):
-        self.ball.pos = Vector(WIDTH / 2, HEIGHT / 2)
+    def reset_ball(self, scored_on_player_name):
+        if scored_on_player_name == "player_1":
+            self.ball.pos = Vector(self.players["player_1"].pos.x + 50, self.players["player_1"].pos.y)
+        elif scored_on_player_name == "player_2":
+            self.ball.pos = Vector(self.players["player_2"].pos.x - 50, self.players["player_2"].pos.y)
+        elif scored_on_player_name == "center":  
+            self.ball.pos = Vector(WIDTH / 2, HEIGHT / 2)
+
         self.ball.vel = Vector(0, 0)
+        self.ball.kicked = False
+
+
 
     def reset_char1(self):
         self.players["player_1"].pos = Vector(WIDTH / 8, 200)
@@ -365,7 +384,7 @@ class Goal:
 
 
 def draw_game(canvas):
-    bg_image = simplegui.load_image('https://www.cs.rhul.ac.uk/home/zmac220/cs1822/footballpitch.png')
+    bg_image = simplegui.load_image('https://www.cs.rhul.ac.uk/home/zmac220/cs1822/pitch.png')
     if bg_image.get_width() > 0 and bg_image.get_height() > 0:
         canvas.draw_image(bg_image,
                           (bg_image.get_width() / 2, bg_image.get_height() / 2),
@@ -375,7 +394,7 @@ def draw_game(canvas):
     inter.update()
     Character.update()
     Character_2.update()
-    ball.update()
+    ball.update(list(inter.players.values()))
     inter.draw(canvas)
     Character.draw(canvas)
     Character_2.draw(canvas)
@@ -481,6 +500,10 @@ keyboard = Keyboard(Character, Character_2)
 inter = Interaction(Character, Character_2, keyboard, ball, left_goal, right_goal)
 frame = simplegui.create_frame("Game", WIDTH, HEIGHT)
 frame.set_draw_handler(draw)
+frame.set_mouseclick_handler(start_game)
+frame.set_keydown_handler(keyboard.keyDown)
+frame.set_keyup_handler(keyboard.keyUp)
+frame.start()
 frame.set_mouseclick_handler(start_game)
 frame.set_keydown_handler(keyboard.keyDown)
 frame.set_keyup_handler(keyboard.keyUp)
