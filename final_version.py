@@ -280,7 +280,7 @@ class Interaction:
                 self.move_player(player, controls, 120, 950 / 2, 30, 370)
             else:
                 if two_player:
-                    self.move_player(player, controls,1050 / 2, 930 - 50, 30, 370)
+                    self.move_player(player, controls,1050 / 2, 1050 - 50, 30, 370)
                 else:
                     self.move_ai(player)
             
@@ -312,7 +312,7 @@ class Interaction:
         return calculation
 
     def move_ai(self, enemy):
-        max_enemy_speed = 7 
+        max_enemy_speed = 2
         ball_target_x = self.ball.pos.x
         ball_target_y = self.ball.pos.y
 
@@ -324,6 +324,8 @@ class Interaction:
                 enemy.pos.y += direction_y * max_enemy_speed
             else:
                 enemy.pos.y += difference_y
+                if not enemy.is_attacking:
+                    enemy.set_state("Run")
             enemy.pos.y = max(30, min(370, enemy.pos.y))
 
 
