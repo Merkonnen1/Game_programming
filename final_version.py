@@ -16,7 +16,6 @@ button_2_x = WIDTH / 2 + 70
 button_y = HEIGHT * 2 / 3
 button_2_y = HEIGHT * 2 / 3
 button_width = 210
-PAbutton_width = 100
 button_height = 60
 
 class Spritesheet:
