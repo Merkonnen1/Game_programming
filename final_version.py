@@ -250,14 +250,15 @@ class Interaction:
         global game_finished, two_player, player_1_won
         if self.ball.offset_l() <= self.left_wall.pos.x:
             self.score["player_2"] += 1
-            self.reset_ball("player_1")  
-            self.reset_char1()
-            self.reset_char2()
+            self.reset_ball("player_1") 
+            self.reset_char1()  
+            self.reset_char2()  
         elif self.ball.offset_r() >= self.right_wall.pos.x:
             self.score["player_1"] += 1
-            self.reset_ball("player_2") 
-            self.reset_char1()
-            self.reset_char2()
+            self.reset_ball("player_2")  
+            self.reset_char1()  
+            self.reset_char2()  
+
 
         
         if self.score["player_1"] == 3:
@@ -336,16 +337,14 @@ class Interaction:
 
     def reset_ball(self, scored_on_player_name):
         if scored_on_player_name == "player_1":
-            self.ball.pos = Vector(self.players["player_1"].pos.x + 50, self.players["player_1"].pos.y)
-        elif scored_on_player_name == "player_2":
-            self.ball.pos = Vector(self.players["player_2"].pos.x - 50, self.players["player_2"].pos.y)
-        elif scored_on_player_name == "center":  
-            self.ball.pos = Vector(WIDTH / 2, HEIGHT / 2)
+            reset_position = Vector(WIDTH / 8, 200) 
+            self.ball.pos = Vector(reset_position.x + 50, reset_position.y)
+        elif scored_on_player_name == "player_2":       
+            reset_position = Vector(WIDTH * 7 / 8, 200) 
+            self.ball.pos = Vector(reset_position.x - 50, reset_position.y)
 
         self.ball.vel = Vector(0, 0)
         self.ball.kicked = False
-
-
 
     def reset_char1(self):
         self.players["player_1"].pos = Vector(WIDTH / 8, 200)
@@ -359,7 +358,6 @@ class Interaction:
         self.left_wall.draw(canvas)
         self.right_wall.draw(canvas)
         self.ball.draw(canvas)
-
 
 class Goal:
     def __init__(self, x, y, border, color):
