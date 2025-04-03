@@ -291,29 +291,30 @@ class Ball:
 
 
 class Interaction:
-    def __init__(self, player_1, player_2, keyboard, ball, left_wall, right_wall):
+    def __init__(self, player_1, player_2, keyboard, ball, left_goal, right_goal):
         self.players = {"player_1": player_1, "player_2": player_2}
         self.keyboard = keyboard
         self.ball = ball
-        self.left_wall = left_wall
-        self.right_wall = right_wall
+        self.left_goal = left_goal
+        self.right_goal = right_goal
         self.score = {"player_1": 0, "player_2": 0}
 
     def update(self):
         global game_finished, two_player, player_1_won
-        if self.ball.offset_l() <= self.left_wall.pos.x:
+        goal_top = HEIGHT / 3 
+        goal_bottom = HEIGHT * 2 / 3
+        if self.ball.offset_l() <= self.left_goal.pos.x and goal_top <= self.ball.pos.y <= goal_bottom:
             self.score["player_2"] += 1
             self.reset_ball("player_1") 
             self.reset_char1()  
             self.reset_char2()
             self.ball.reset()
-        elif self.ball.offset_r() >= self.right_wall.pos.x:
+        elif self.ball.offset_r() >= self.right_goal.pos.x and goal_top <= self.ball.pos.y <= goal_bottom:
             self.score["player_1"] += 1
             self.reset_ball("player_2")  
             self.reset_char1()  
             self.reset_char2()
             self.ball.reset()
-
 
         
         if self.score["player_1"] == 3:
@@ -413,8 +414,8 @@ class Interaction:
     def draw(self, canvas):
         canvas.draw_text(f"Player 1: {self.score['player_1']}", (70, 55), 20, "Black", "monospace")
         canvas.draw_text(f"Player 2: {self.score['player_2']}", (WIDTH - 200, 55), 20, "Black", "monospace")
-        self.left_wall.draw(canvas)
-        self.right_wall.draw(canvas)
+        self.left_goal.draw(canvas)
+        self.right_goal.draw(canvas)
         self.ball.draw(canvas)
 
 class Goal:
